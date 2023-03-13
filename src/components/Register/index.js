@@ -47,12 +47,14 @@ class Register extends Component {
 
   optionSelectedChange = event => {
     const displayText = event.target.value
+    console.log(displayText)
     const filteredId = topicsList.filter(
-      eachList => eachList.displayText === displayText,
+      eachList => eachList.id === displayText,
     )
-    console.log(filteredId)
+    console.log('hello')
+    console.log(filteredId[0].id)
     this.setState({
-      optionSelected: filteredId[0].displayText,
+      optionSelected: filteredId[0].id,
       optionText: filteredId[0].displayText,
     })
   }
@@ -75,10 +77,10 @@ class Register extends Component {
             if (inputName === '') {
               this.setState({errorMsg: true})
             } else {
-              const inputOption = {inputName, optionText, isRegistered}
-              inputFunction(inputOption)
               const {history} = this.props
               history.replace('/')
+              const inputOption = {inputName, optionText, isRegistered}
+              inputFunction(inputOption)
             }
           }
           return (
@@ -117,7 +119,7 @@ class Register extends Component {
                         onChange={this.optionSelectedChange}
                       >
                         {topicsList.map(eachList => (
-                          <option key={eachList.id}>
+                          <option key={eachList.id} value={eachList.id}>
                             {eachList.displayText}
                           </option>
                         ))}
