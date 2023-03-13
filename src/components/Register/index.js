@@ -9,13 +9,11 @@ import {
   SelectContainer,
   Button,
 } from '../StyledComponents'
+import ContextApi from '../ContextApi'
 
 // These are the lists used in the application. You can move them to any component needed.
 const topicsList = [
-  {
-    id: 'ARTS_AND_CULTURE',
-    displayText: 'Arts and Culture',
-  },
+  {id: 'ARTS_AND_CULTURE', displayText: 'Arts and Culture'},
   {
     id: 'CAREER_AND_BUSINESS',
     displayText: 'Career and Business',
@@ -37,8 +35,10 @@ const topicsList = [
 class Register extends Component {
   state = {
     inputName: '',
-    optionSelected: topicsList[0].displayText,
+    optionSelected: topicsList[0].id,
+    optionText: topicsList[0].displayText,
     errorMsg: false,
+    isRegistered: true,
   }
 
   inputNameChange = event => {
@@ -46,69 +46,92 @@ class Register extends Component {
   }
 
   optionSelectedChange = event => {
-    this.setState({optionSelected: event.target.value})
-  }
-
-  submitForm = event => {
-    event.preventDefault()
-    const {inputName, optionSelected} = this.state
-    if (inputName === '') {
-      this.setState({errorMsg: true})
-    } else {
-      const {history} = this.props
-      history.replace({
-        pathname: '/',
-        state: {inputName, optionSelected},
-      })
-    }
+    const displayText = event.target.value
+    const filteredId = topicsList.filter(
+      eachList => eachList.displayText === displayText,
+    )
+    console.log(filteredId)
+    this.setState({
+      optionSelected: filteredId[0].displayText,
+      optionText: filteredId[0].displayText,
+    })
   }
 
   render() {
-    const {inputName, optionSelected, errorMsg} = this.state
     return (
-      <BgContainer>
-        <Navbar>
-          <img
-            src="https://assets.ccbp.in/frontend/react-js/meetup/website-logo-img.png"
-            alt="website logo"
-          />
-        </Navbar>
-        <RegisterJoinContainer>
-          <div>
-            <img
-              src="https://assets.ccbp.in/frontend/react-js/meetup/website-register-img.png"
-              alt="website register"
-            />
-          </div>
-          <LetusJoinContainer>
-            <form onClick={this.submitForm}>
-              <InputContainer>
-                <label htmlFor="name">NAME</label>
-                <InputItself
-                  id="name"
-                  placeholder="Your Name"
-                  value={inputName}
-                  onChange={this.inputNameChange}
+      <ContextApi.Consumer>
+        {value => {
+          const {
+            inputName,
+            optionSelected,
+            optionText,
+            errorMsg,
+            isRegistered,
+          } = this.state
+          console.log(optionSelected)
+          const {inputFunction} = value
+          const submitForm = event => {
+            event.preventDefault()
+            if (inputName === '') {
+              this.setState({errorMsg: true})
+            } else {
+              const inputOption = {inputName, optionText, isRegistered}
+              inputFunction(inputOption)
+              const {history} = this.props
+              history.replace('/')
+            }
+          }
+          return (
+            <BgContainer>
+              <Navbar>
+                <img
+                  src="https://assets.ccbp.in/frontend/react-js/meetup/website-logo-img.png"
+                  alt="website logo"
                 />
-              </InputContainer>
-              <InputContainer>
-                <label htmlFor="topics">TOPICS</label>
-                <SelectContainer
-                  id="topics"
-                  value={optionSelected}
-                  onChange={this.optionSelectedChange}
-                >
-                  {topicsList.map(eachList => (
-                    <option key={eachList.id}>{eachList.displayText}</option>
-                  ))}
-                </SelectContainer>
-              </InputContainer>
-              <Button type="submit">Register</Button>
-            </form>
-            {errorMsg && <p>Please enter your name</p>}
-          </LetusJoinContainer>
-        </RegisterJoinContainer>
-      </BgContainer>
+              </Navbar>
+              <RegisterJoinContainer>
+                <div>
+                  <img
+                    src="https://assets.ccbp.in/frontend/react-js/meetup/website-register-img.png"
+                    alt="website register"
+                  />
+                </div>
+                <LetusJoinContainer>
+                  <h1>Let us join</h1>
+                  <form onSubmit={submitForm}>
+                    <InputContainer>
+                      <label htmlFor="name">NAME</label>
+                      <InputItself
+                        type="text"
+                        id="name"
+                        placeholder="Your Name"
+                        value={inputName}
+                        onChange={this.inputNameChange}
+                      />
+                    </InputContainer>
+                    <InputContainer>
+                      <label htmlFor="topics">TOPICS</label>
+                      <SelectContainer
+                        id="topics"
+                        value={optionSelected}
+                        onChange={this.optionSelectedChange}
+                      >
+                        {topicsList.map(eachList => (
+                          <option key={eachList.id}>
+                            {eachList.displayText}
+                          </option>
+                        ))}
+                      </SelectContainer>
+                    </InputContainer>
+                    <Button type="submit">Register Now</Button>
+                  </form>
+                  {errorMsg && <p>Please enter your name</p>}
+                </LetusJoinContainer>
+              </RegisterJoinContainer>
+            </BgContainer>
+          )
+        }}
+      </ContextApi.Consumer>
     )
   }
 }
